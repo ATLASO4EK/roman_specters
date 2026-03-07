@@ -11,6 +11,8 @@ from huita import Net, Dataset
 
 if __name__ == '__main__':
     print('Инициализация обучения')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Проверяем доступность GPU и приоритетно используем его
+    print(f'Используем: {device}')
     path = 'D:\\Помойка 2.0\\pythonic-shit\\roman_specters\\data\\global_dataframe_normed.csv'
 
     script_path = os.getcwd()
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     print('Выходные директории готовы')
 
     # Загрузка данных
-    dataset = Dataset(path)
+    dataset = Dataset(path, device)
 
     train_size = int(len(dataset) * 0.6)
     test_size = int(len(dataset) * 0.2)
@@ -41,13 +43,11 @@ if __name__ == '__main__':
 
     batch_size = 2048
 
-    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6)
-    val_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,num_workers=6)
+    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
+    val_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
     print('Данные загружены корректно')
 
     # Инициализация моделей
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Проверяем доступность GPU и приоритетно используем его
-    print(f'Используем: {device}')
 
     model = Net().to(device)
 

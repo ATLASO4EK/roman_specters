@@ -3,6 +3,8 @@ import numpy as np
 import torch
 import torch.utils.data as data
 import torch.nn as nn
+from torch._C import device
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -31,9 +33,10 @@ class Net(nn.Module):
 
 
 class Dataset(data.Dataset):
-    def __init__(self, path):
+    def __init__(self, path, device):
+        self.device = device
         self.df = pd.read_csv(path)
-        self.inputs = self.df.loc[:, ['Roman shifts', 'Counts', 'Brain region']].to_numpy(dtype=np.float32)
+        self.inputs = torch.tensor(self.df.loc[:, ['Roman shifts', 'Counts', 'Brain region']].to_numpy(dtype=np.float32), dtype=torch.float32).to(self.device)
         self.outputs = self.df.loc[:, ['Result']].to_numpy(dtype=np.int16)
         del self.df
 
@@ -41,7 +44,7 @@ class Dataset(data.Dataset):
         return len(self.outputs)
 
     def __getitem__(self, item):
-        x = torch.tensor(self.inputs[item], dtype=torch.float32)
+        x = self.inputs[item]
         y = torch.tensor(np.eye(3)[self.outputs[item]], dtype=torch.float32)
 
         return x, y
