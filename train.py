@@ -8,7 +8,7 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from huita import Net, Dataset
+from huita import Net
 
 def create_dataset(path, device):
     df = pd.read_csv(path)
@@ -29,8 +29,9 @@ def create_dataset(path, device):
 if __name__ == '__main__':
     print('Инициализация обучения')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # Проверяем доступность GPU и приоритетно используем его
+    torch.cuda.empty_cache()
     print(f'Используем: {device}')
-    path = 'D:\\Помойка 2.0\\pythonic-shit\\roman_specters\\data\\global_dataframe_normed.csv'
+    path = 'D:\\Помойка 2.0\\pythonic-shit\\roman_specters\\data\\NonNoicedDF.csv'
 
     script_path = os.getcwd()
     os.chdir('..')
@@ -58,10 +59,10 @@ if __name__ == '__main__':
     )
     del dataset, test_dataset
 
-    batch_size = 2048
+    batch_size = 256
 
-    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
-    val_dataloader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
+    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    val_dataloader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     print('Данные загружены корректно')
 
     # Инициализация моделей
@@ -79,6 +80,8 @@ if __name__ == '__main__':
 
     losses_train = []
     losses_val = []
+    acc_train = []
+    acc_val = []
     for i in range(epochs):
         # Обучение
         print(f'Обучение VGG11 эпоха {i}')
@@ -112,6 +115,7 @@ if __name__ == '__main__':
 
             train_tqdm11.set_description(f'loss: {loss:.4f}, loss_mean: {loss_mean:.4f}, accuracy: {accuracy:.4f}')   # Выводим служебную информацию
         losses_train.append(loss_mean)
+        acc_train.append(accuracy)
 
         with open(os.path.join(model_path, f'model[{i}]_train.txt'), 'w') as f:
             f.write(str(accuracy))
@@ -145,6 +149,7 @@ if __name__ == '__main__':
                 val_tqdm11.set_description(f'loss: {loss:.4f}, loss_mean: {loss_mean:.4f}, accuracy: {accuracy:.4f}')
 
         losses_val.append(loss_mean)
+        acc_val.append(accuracy)
 
         with open(os.path.join(model_path, f'model[{i}]_val.txt'), 'w') as f:
             f.write(str(accuracy))
@@ -157,4 +162,8 @@ if __name__ == '__main__':
         plt.plot(losses_train, label='train loss mean', color='blue')
         plt.plot(losses_val, label='val loss mean', color='red')
         plt.savefig(os.path.join(model_path, f'model_train.jpg'))    # Сохраняем график
-    plt.show()
+
+        plt.figure(figsize=(20, 20))
+        plt.plot(acc_train, label='train loss mean', color='blue')
+        plt.plot(acc_val, label='val loss mean', color='red')
+        plt.savefig(os.path.join(model_path, f'model_train_acc.jpg'))    # Сохраняем график
