@@ -17,7 +17,7 @@ def create_dataset(path, device):
 
     del df
 
-    labels = torch.nn.functional.one_hot(outputs, num_classes=3).to(device)
+    labels = torch.nn.functional.one_hot(outputs, num_classes=3).to(device).type(torch.float32)
     labels = labels.reshape((len(labels), 3))
 
     del outputs
