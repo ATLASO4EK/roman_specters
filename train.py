@@ -39,8 +39,10 @@ if __name__ == '__main__':
     )
     del dataset, test_dataset
 
-    train_dataloader = data.DataLoader(train_dataset, batch_size=2048, shuffle=True, num_workers=6)
-    val_dataloader = data.DataLoader(train_dataset, batch_size=2048, shuffle=True,num_workers=6)
+    batch_size = 2048
+
+    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6)
+    val_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,num_workers=6)
     print('Данные загружены корректно')
 
     # Инициализация моделей
@@ -73,7 +75,7 @@ if __name__ == '__main__':
         for x, y in train_tqdm11:
             x = x.to(device)
             y = y.to(device)
-            y = y.reshape((512, 3))
+            y = y.reshape((batch_size, 3))
 
             out = model(x) # Получаем предсказание
             loss = loss_function(out, y) # Считаем потери
@@ -106,6 +108,7 @@ if __name__ == '__main__':
             with torch.no_grad():
                 x = x.to(device)
                 y = y.to(device)
+                y = y.reshape((batch_size, 3))
 
                 out = model(x) # Получаем предсказание
                 loss = loss_function(out, y) # Считаем потери
