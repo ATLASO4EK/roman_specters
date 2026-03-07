@@ -5,9 +5,26 @@ import torch.utils.data as data
 import torch.optim as optim
 import torch.nn as nn
 from tqdm import tqdm
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from huita import Net, Dataset
+
+def create_dataset(path, device):
+    df = pd.read_csv(path)
+    inputs = torch.tensor(df.loc[:, ['Roman shifts', 'Counts', 'Brain region']].to_numpy(dtype=np.float32), dtype=torch.float32).to(device)
+    outputs = torch.tensor(df.loc[:, ['Result']].to_numpy(dtype=np.int64), dtype=torch.long).to(device)
+
+    del df
+
+    labels = torch.nn.functional.one_hot(outputs, num_classes=3).to(device)
+    labels = labels.reshape((len(labels), 3))
+
+    del outputs
+    dataset = data.TensorDataset(inputs, labels)
+    del inputs, labels
+    return dataset
+
 
 if __name__ == '__main__':
     print('Инициализация обучения')
@@ -29,7 +46,7 @@ if __name__ == '__main__':
     print('Выходные директории готовы')
 
     # Загрузка данных
-    dataset = Dataset(path, device)
+    dataset = create_dataset(path, device)
 
     train_size = int(len(dataset) * 0.6)
     test_size = int(len(dataset) * 0.2)
@@ -134,4 +151,4 @@ if __name__ == '__main__':
         plt.plot(losses_train, label='train loss mean', color='blue')
         plt.plot(losses_val, label='val loss mean', color='red')
         plt.savefig(os.path.join(model_path, f'model_train.jpg'))    # Сохраняем график
-        plt.show()
+    plt.show()
