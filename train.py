@@ -61,7 +61,7 @@ if __name__ == '__main__':
     batch_size = 2048
 
     train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
-    val_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
+    val_dataloader = data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=6, drop_last=True)
     print('Данные загружены корректно')
 
     # Инициализация моделей
@@ -113,6 +113,9 @@ if __name__ == '__main__':
             train_tqdm11.set_description(f'loss: {loss:.4f}, loss_mean: {loss_mean:.4f}, accuracy: {accuracy:.4f}')   # Выводим служебную информацию
         losses_train.append(loss_mean)
 
+        with open(os.path.join(model_path, f'model[{i}]_train.txt'), 'w') as f:
+            f.write(str(accuracy))
+
         # Валидация
         model.eval()
         print('Валидация')
@@ -142,6 +145,8 @@ if __name__ == '__main__':
                 val_tqdm11.set_description(f'loss: {loss:.4f}, loss_mean: {loss_mean:.4f}, accuracy: {accuracy:.4f}')
 
         losses_val.append(loss_mean)
+        with open(os.path.join(model_path, f'model[{i}]_val.txt', 'w')) as f:
+            f.write(str(accuracy))
 
         # Сохранение весов и графиков
         model.to('cpu')   # Переносим модель на CPU для сохранения
