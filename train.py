@@ -145,7 +145,8 @@ if __name__ == '__main__':
                 val_tqdm11.set_description(f'loss: {loss:.4f}, loss_mean: {loss_mean:.4f}, accuracy: {accuracy:.4f}')
 
         losses_val.append(loss_mean)
-        with open(os.path.join(model_path, f'model[{i}]_val.txt', 'w')) as f:
+
+        with open(os.path.join(model_path, f'model[{i}]_val.txt'), 'w') as f:
             f.write(str(accuracy))
 
         # Сохранение весов и графиков
